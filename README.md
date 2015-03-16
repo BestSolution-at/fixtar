@@ -3,7 +3,7 @@ ft ("fix tar")
 
 `ft` is a commandline tool to extract as much data from corrupted tar archives as possible.
 
-Some background information about the tool can be found [here](http://riaschissl.bestsolution.at/2014/03/repost-how-to-repair-corrupt-tar-archives/)
+Some background information about the tool can be found [here](http://riaschissl.bestsolution.at/2015/03/repair-corrupt-tar-archives-the-better-way/)
 and in the docs folder of the project.
 
 
