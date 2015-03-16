@@ -1,0 +1,211 @@
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+</HEAD>
+<Body>
+<p>
+<p>preface:<br/>
+<i>this document refers to an article describing how to fix corrupt tar archives.
+This article can be found <a href='http://riaschissl.bestsolution.at/2014/03/repost-how-to-repair-corrupt-tar-archives/'>here</a></i>
+</p>
+
+<h1>a short comment and a few toughts and experiences</h1>
+
+<p>
+preface: I wont comment the shell commands in detail
+
+<p>
+It is correct, that TAR writes and reads in blocks of 512 bytes. And that
+means, that the output of the perl script (see <a href='http://riaschissl.bestsolution.at/2014/03/repost-how-to-repair-corrupt-tar-archives/'>this article</a>)
+needs to be verified according to this rule. If you don't to this, data will 
+be lost, because it is skipped even though it may have been restorable. In the
+following, I refer to the mentioned offsets from the script's outout, or in 
+other words: I am doing a division with a remainder.
+
+<p>Note: the script only looks for the magic string, if the find spit is 
+usable still has to be determined. For old V7 tar archives, there is no
+magic string, maybe with the exception of seeing 8 times 0x0 as such.
+
+<blockquote>
+<pre>
+for num in 17185 75041 130849 183585 ; do echo $[$num % 512] ; done
+	289
+	289
+	289
+	289
+</pre>
+</blockquote>
+
+<p>
+All files have the same offset, allowing us to unpack as described above.
+
+<p>
+But lets think about four different numbers! Maybe every file is located 
+somewhere else regarding the 512 bytes border. Using a bash oneliner, taking 
+some time with larger archives, you still can solve the problem quite easily.
+
+<blockquote>
+<pre>
+# shift offset and unpack
+seq 0 511| while read offset; do \
+	dd if=BAD.TAR bs=1 skip=$offset ibs=100k obs=100k| \
+	tar --backup=numbered -xv; done
+</pre>
+</blockquote>
+
+<p>
+alternatively:
+
+<blockquote>
+<pre>
+# shift offset and save
+seq 0 511| while read offset; do \
+	dd &lt; BAD.TAR bs=1 skip=$offset ibs=100k obs=100k &gt; $offset.tar ; done
+</pre>
+</blockquote>
+
+<p>
+Note: As far as I know, metadata in TAR archives is not being evaluated. But
+if you lose metadata such as long file names, you might overwrite data i
+unintentionally, and because of that, I am using <tt>--backup=numbered</tt>.
+
+<p>
+Whenever you can afford the luxury, you should not compress TAR archives and 
+instead create a special list of filenames:
+
+<blockquote>
+<pre>
+tar -tRvf B.tar
+block 0:    drwxr-xr-x tom/users         0 2007-05-09 22:46 collect/
+block 1:    drwxr-xr-x tom/users         0 2007-05-09 22:46 collect/collect/
+block 2:    -rw-r--r-- tom/users    514681 2007-05-04 17:22 collect/collect/pict1558.jpg
+block 1009: -rw-r--r-- tom/users    494531 2007-05-04 17:22 collect/collect/pict1559.jpg
+block 1976: -rw-r--r-- tom/users    473448 2007-05-04 17:22 collect/collect/pict1560.jpg
+block 2902: -rw-r--r-- tom/users    489478 2007-05-04 17:22 collect/collect/pict1561.jpg
+</pre>
+</blockquote>
+
+<p>
+Why? - during reading, TAR verifies only a part of the data against a
+checksum, meaning that in the most optimistic case only a part of the archive
+has been corrupted but not the data itself. For example:
+
+<blockquote>
+<pre>
+tar -tRf B.tar 2&gt;&amp;1 # redirect STDERR to STDOUT umleiten, because lines would shift otherwise
+block 0: collect/
+block 1: collect/collect/
+block 2: collect/collect/pict1558.jpg
+block 1010: tar: Skipping to next header <b>&lt;-- error</b>
+block 1976: collect/collect/pict1560.jpg
+block 2902: collect/collect/pict1561.jpg
+</pre>
+</blockquote>
+
+<p>
+If you compare both listings, you see that the archive header at block 1009 is
+defect and the real data starts at block 1010. Furthermore you can see how 
+many bytes are lost (494531) and we know data file type (JPEG). That suffices
+for a first test:
+
+<blockquote>
+<pre>
+dd skip=1010 &lt; B.tar count=2 2&gt;/dev/null | file -
+/dev/stdin: JPEG image data, EXIF standard 2.2
+</pre>
+</blockquote>
+
+<p>
+Now keep your fingers crossed:
+
+<blockquote>
+<pre>
+dd skip=1010 &lt; B.tar | dd bs=1 count=494531  &gt; lost.jpg
+</pre>
+</blockquote>
+
+<p>
+If more than one file in a block has been lost, you have to do some
+calculations of course.
+
+<p>
+You can retrieve this special listing from a defect archive as well and 
+then extract the data manually as shown above.
+
+<blockquote>
+<pre>
+seq 0 511| while read offset; do \
+	dd &lt; BAD.TAR bs=1 skip=$offset ibs=100k obs=100k | \
+	tar -tvR &gt; list-$offset.tar ; done
+</pre>
+</blockquote>
+
+<p>
+Furthermore, I recommend to split big archives with „<tt>split</tt>“ as
+indicated below:
+
+<blockquote>
+<pre>
+dir=/$(date -d now "+%Y-%m-%d")
+mkdir $dir ; cd $dir
+tar -c ~| split –verbose -b 200m -d
+File „x00“ is being created
+File „x01“ is being created
+...
+</pre>
+</blockquote>
+
+<p>
+Test and unpack using:
+<blockquote>
+<pre>
+cat x*| tar -t
+</pre>
+</blockquote>
+
+<p>
+If you continue to apply the strategy with the special listings to the split
+files, you might  even be faster if you are looking for one or less files.
+The fact, that almost all x-files created by <tt>split</tt> do not start with
+an archive header is unproblematic, because TAR skips those blocks and we
+adhered to the 512 bytes rule (see the man page for dd and split). If this
+fails, you can still start one x-file earlier, then TAR will always have the
+required data.
+
+<p>
+<hr>
+The now introduced tool <tt>ft</tt> copies all data it can find, even if the
+data is moved within the archive.
+Usage:
+<blockquote>
+<pre>
+	ft &lt; damaged.tar &gt; repaired.tar
+	ft &lt; damaged.tar | tee repaired.tar | tar -tf - | tee list.txt
+	ft &lt; damaged.tar | tar --backup=numbered -xvf -
+</pre>
+</blockquote>
+
+<p>
+Notes:
+<ul>
+<li>no options, no output</li>
+<li>a cut off file is filled with a line break (an error message will be 
+shown)</li>
+<li>it is not guaranteed that TAR extensions actually exist in the expected
+data. In order to avoid unwanted overwriting, you should use <tt>tar</tt> as
+follows:<br/>
+<tt>tar --backup=numbered -xvf repaired.tar</tt>
+or with option "-k"</li>
+<li>vendor/POSIX extensions often start with names like
+./@LongLink, ./@LongName or */PaxHeader/*, those are not shown by 
+<tt>tar</tt>, but <tt>cpio</tt> or <tt>pax</tt> do show them.</li>
+<li>it is quite difficult to deal with all possible situations, due to this
+I have chosen a few very probably ones.</li>
+</ul>
+
+<p>
+Thomas Graf
+<p>
+2015-03-16: English translation and minor texual changes by udo.rader@bestsolution.at
+</Body>
+</HTML>

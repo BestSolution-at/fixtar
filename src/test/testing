@@ -1,0 +1,19 @@
+#!/bin/sh
+# simple test for ft-programm
+rm -rf repaired.tar damaged.tar abc
+mkdir -p abc;
+tar --help  >abc/tar.txt
+ps aux     >>damaged.tar
+tar  -V "LONG LABEL :: $(date -d now +%Y-%m-%d)" -Hgnu -c abc |dd bs=1023 count=1 >>damaged.tar
+dd </dev/zero count=3 bs=${RANDOM:-2357} >>damaged.tar
+tar  -Hgnu -c abc >>damaged.tar
+tar --help  >abc/tar2.txt
+tar  -Hgnu -c abc/tar2.txt | dd count=2 2>&- >>damaged.tar # truncate output
+../ft < damaged.tar | tee repaired.tar | tar -tf - | tee list.txt
+if test "$?" == "0" ; then
+	echo '»ERROR: unexpected end of file at "abc/tar2.txt", fillup with newlines« <-- this line was expected'
+	tar -tf repaired.tar && echo "test: ok"
+	rm -rf repaired.tar damaged.tar abc list.txt
+else
+	echo ERROR
+fi
