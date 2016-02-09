@@ -3,6 +3,8 @@
 # Copyright: 2002, 2004, 2005 - Thomas Graf (metaf4@users.askja.de)
 # Date     : 2007.04.16 [YYYY.MM.DD]
 #
+# Authors  : Thomas Graf (metaf4@users.askja.de) (original)
+#            Udo Rader <udo.rader@bestsolution.at>
 
 LEX      = flex
 LFLAGS   = -i -8 -o
@@ -11,7 +13,7 @@ CXX      = c++
 CPPFLAGS = -g3
 INCLUDE  = -I.
 WARNING  = -Wall #-std=c99 -pedantic 
-CFLAGS   = $(CPPFLAGS) $(INCLUDE) $(WARNING)  -O2
+CFLAGS   = $(CPPFLAGS) $(INCLUDE) $(WARNING)  -O2 -D_FORTIFY_SOURCE=0
 CXXFLAGS = $(CPPFLAGS) $(INCLUDE) $(WARNING) -O2
 LDFLAGS  = -s
 LIBS     =
