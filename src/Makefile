@@ -3,7 +3,7 @@
 # Copyright: 2002, 2004, 2005 - Thomas Graf (metaf4@users.askja.de)
 # Date     : 2007.04.16 [YYYY.MM.DD]
 #
-# Authors  : Thomas Graf (metaf4@users.askja.de) (original)
+# Authors  : Thomas Graf (original)
 #            Udo Rader <udo.rader@bestsolution.at>
 
 LEX      = flex
