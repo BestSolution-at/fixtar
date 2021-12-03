@@ -5,9 +5,8 @@
 <Body>
 <p>
 <p>preface:<br/>
-<i>this document refers to an article describing how to fix corrupt tar archives.
-This article can be found <a href='http://riaschissl.bestsolution.at/2014/03/repost-how-to-repair-corrupt-tar-archives/'>here</a></i>
-</p>
+<i>this document refers to an old blog article describing how to fix corrupt tar archives.
+This article is no longer available.</p>
 
 <h1>a short comment and a few toughts and experiences</h1>
 
@@ -16,7 +15,7 @@ preface: I wont comment the shell commands in detail
 
 <p>
 It is correct, that TAR writes and reads in blocks of 512 bytes. And that
-means, that the output of the perl script (see <a href='http://riaschissl.bestsolution.at/2014/03/repost-how-to-repair-corrupt-tar-archives/'>this article</a>)
+means, that the output of the perl script
 needs to be verified according to this rule. If you don't to this, data will 
 be lost, because it is skipped even though it may have been restorable. In the
 following, I refer to the mentioned offsets from the script's outout, or in 
