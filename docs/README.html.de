@@ -3,19 +3,18 @@
 </HEAD>
 <Body>
 <p>Vorbemerkung:<br/>
-<i>Dieses Dokument bezieht sich auf einen Artikel, der beschreibt, wie defekte
-tar Archive repariert werden können. Dieser Artikel ist <a href='http://riaschissl.bestsolution.at/2014/03/repost-how-to-repair-corrupt-tar-archives/'>hier</a></i>
-zu finden.
+<i>Dieses Dokument bezieht sich auf einen Blog-Artikel, der beschreibt, wie defekte
+tar Archive repariert werden können. Dieser Artikel ist mittlerweile allerdings nicht mehr verfügbar.
 </p>
 
 <h1>Ein kurzer Kommentar und ein paar Gedanken und Erfahrungen</h1>
 
 <p>
-Vorab: die Shell-Befehle kommentiere nicht im Detail
+Vorab: die Shell-Befehle kommentiere ich nicht im Detail
 
 <p>
 Richtig ist, dass TAR in 512-er Byteblöcken schreibt bzw. liest. Und das
-heißt, dass die Ausgabe des PERL-Scripts (siehe <a href='http://riaschissl.bestsolution.at/2014/03/repost-how-to-repair-corrupt-tar-archives/'>dieser Artikel</a>) 
+heißt, dass die Ausgabe des PERL-Scripts
 auf diese Eigenschaft geprüft werden muss. Tut man dies nicht, gehen Daten 
 verloren, weil sie übersprungen wurden, welche jedoch herstellbar gewesen 
 wären.  Nachfolgend beziehe ich mich auf die Offset-Angaben der Script-Ausgabe,
