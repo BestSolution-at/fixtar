@@ -3,8 +3,7 @@ ft ("fix tar")
 
 `ft` is a commandline tool to extract as much data from corrupted tar archives as possible.
 
-Some background information about the tool can be found [here](http://riaschissl.bestsolution.at/2015/03/repair-corrupt-tar-archives-the-better-way/)
-and in the docs folder of the project.
+Some background information about the tool can be found in the docs folder of the project.
 
 
 License
@@ -13,7 +12,7 @@ License
 `ft` is distributed under the terms of the [GNU General Public License (GPL), Version 2.0](http://www.gnu.org/licenses/gpl-2.0.html).
 The text of the license is included in the file LICENSE in the root of the project.
 
-The tool is &copy; by Thomas Graf, Thomas Graf (metaf4@users.askja.de)
+The tool is &copy; by Thomas Graf
 
 Building
 -------
