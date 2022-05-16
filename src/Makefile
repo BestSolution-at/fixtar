@@ -1,6 +1,6 @@
 #
 # Creator  : gm 0.4
-# Copyright: 2002, 2004, 2005 - Thomas Graf (metaf4@users.askja.de)
+# Copyright: 2002, 2004, 2005 - Thomas Graf
 # Date     : 2007.04.16 [YYYY.MM.DD]
 #
 # Authors  : Thomas Graf (original)
